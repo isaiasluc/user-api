@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/User";
+import PasswordToken from "../models/PasswordToken";
 
 class UserController {
   async index(req: Request, res: Response) {
@@ -78,6 +79,44 @@ class UserController {
     } else {
       res.status(406);
       res.send("Ocorreu um erro no servidor");
+    }
+  }
+
+  async recoverPassword(req: Request, res: Response) {
+    const { email } = req.body;
+
+    const result = await PasswordToken.create(email);
+
+    if (result.status) {
+      console.log(result.token);
+      res.status(200);
+      res.send(result.token?.toString());
+    } else {
+      res.status(406);
+      res.send(result.err);
+    }
+  }
+
+  async changePassword(req: Request, res: Response) {
+    const { token, password } = req.body;
+
+    try {
+      const isTokenValid = await PasswordToken.validate(token);
+
+      if (isTokenValid.status) {
+        await User.changePassword(
+          password,
+          isTokenValid.token.user_id,
+          isTokenValid.token.token
+        );
+        res.status(200);
+        res.send("Senha alterada com sucesso");
+      } else {
+        res.status(406);
+        res.send("Token inválido!");
+      }
+    } catch (err) {
+      console.log(err);
     }
   }
 }
