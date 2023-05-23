@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import User from "../models/User";
 import PasswordToken from "../models/PasswordToken";
 
-const secret = "1fKncK3D#$%kcmdkJ!ds";
+export const secret = "1fKncK3D#$%kcmdkJ!ds";
 
 class UserController {
   async index(req: Request, res: Response) {
